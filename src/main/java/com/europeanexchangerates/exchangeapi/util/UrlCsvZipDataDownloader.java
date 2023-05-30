@@ -16,9 +16,8 @@ public class UrlCsvZipDataDownloader {
     public Map<LocalDate, ExchangeRate> downloadData() throws Exception {
         String url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip";
         Map<LocalDate, ExchangeRate> exchangeRates = new HashMap<>();
-        URL csvDataUrl = new URL(url);
-        InputStream csvUrlInputStream = csvDataUrl.openStream();
-        ZipInputStream zipInputStream = new ZipInputStream(csvUrlInputStream);
+        ZipInputStream zipInputStream = new ZipInputStream(
+                (new URL(url)).openStream());
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(zipInputStream));
 
