@@ -19,8 +19,8 @@ public class UrlCsvZipDataDownloader {
         URL csvDataUrl = new URL(url);
         InputStream csvUrlInputStream = csvDataUrl.openStream();
         ZipInputStream zipInputStream = new ZipInputStream(csvUrlInputStream);
-        InputStreamReader inputStreamReader = new InputStreamReader(zipInputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(zipInputStream));
 
         // Iterate over each entry in the zip file
         while (zipInputStream.getNextEntry() != null) {
