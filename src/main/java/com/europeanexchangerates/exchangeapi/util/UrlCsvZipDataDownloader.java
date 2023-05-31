@@ -7,14 +7,15 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.ZipInputStream;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 
 public class UrlCsvZipDataDownloader implements DataDownloader{
-    public Map<LocalDate, ExchangeRate> downloadData() throws Exception {
+    public TreeMap<LocalDate, ExchangeRate> downloadData() throws Exception {
         String url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip";
-        Map<LocalDate, ExchangeRate> exchangeRates = new HashMap<>();
+        TreeMap<LocalDate, ExchangeRate> exchangeRates = new TreeMap<>();
         ZipInputStream zipInputStream = new ZipInputStream(
                 (new URL(url)).openStream());
         BufferedReader bufferedReader = new BufferedReader(

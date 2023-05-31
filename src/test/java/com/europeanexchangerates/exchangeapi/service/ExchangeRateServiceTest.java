@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ public class ExchangeRateServiceTest {
     
     @BeforeEach
     void setUp() throws Exception {
-        Map<LocalDate, ExchangeRate> dummyData = new HashMap<>() {{
+        TreeMap<LocalDate, ExchangeRate> dummyData = new TreeMap<>() {{
             put(LocalDate.of(2023, 5, 30), new ExchangeRate(new HashMap<>() {{
                 put("USD", BigDecimal.valueOf(1.0744));
                 put("JPY", BigDecimal.valueOf(150.01));
@@ -48,6 +49,17 @@ public class ExchangeRateServiceTest {
                 put("JPY", BigDecimal.valueOf(150.24));
                 put("BGN", BigDecimal.valueOf(1.9558));
                 put("GBP", BigDecimal.valueOf(0.86813));
+            }}));
+            put(LocalDate.of(2023, 5, 25), new ExchangeRate(new HashMap<>() {{
+                put("USD", BigDecimal.valueOf(1.0735));
+                put("JPY", BigDecimal.valueOf(149.63));
+                put("BGN", BigDecimal.valueOf(1.9558));
+            }}));
+            put(LocalDate.of(2023, 5, 24), new ExchangeRate(new HashMap<>() {{
+                put("USD", BigDecimal.valueOf(1.0785));
+                put("JPY", BigDecimal.valueOf(149.3));
+                put("BGN", BigDecimal.valueOf(1.9558));
+                put("GBP", BigDecimal.valueOf(0.86993));
             }}));
         }};
         when(dataDownloader.downloadData()).thenReturn(dummyData);
@@ -100,5 +112,38 @@ public class ExchangeRateServiceTest {
             exchangeRateService.convertCurrency(inputDate, "EEK",
                                             "TRL", BigDecimal.valueOf(100))
         );
+    }
+
+    @Test
+    void testGetHighestRate() {
+        // Includes a weekend. Should be processed properly.
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-26", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(BigDecimal.valueOf(1.0751), 
+            exchangeRateService.getHighestRate(startDate, endDate, "USD"));
+    }
+
+
+    @Test
+    void testGetHighestRate_DaysWithoutData() {
+        // Includes days without data for the currency.
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-24", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(BigDecimal.valueOf(0.86993), 
+            exchangeRateService.getHighestRate(startDate, endDate, "GBP"));
+    }
+
+    @Test
+    void testGetHighestRate_NoDataForCurrency() {
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-24", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(null, 
+            exchangeRateService.getHighestRate(startDate, endDate, "EEK"));
     }
 }

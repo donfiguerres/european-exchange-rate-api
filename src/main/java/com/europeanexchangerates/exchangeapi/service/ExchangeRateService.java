@@ -3,7 +3,9 @@ package com.europeanexchangerates.exchangeapi.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
 
@@ -13,7 +15,9 @@ import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 
 @Service
 public class ExchangeRateService {
-    private Map<LocalDate, ExchangeRate> exchangeRates;
+
+    // A TreeMap is used to store the exchange rates in chronological order.
+    private TreeMap<LocalDate, ExchangeRate> exchangeRates;
 
     public ExchangeRateService() throws Exception {
         DataDownloader downloader = new UrlCsvZipDataDownloader();
@@ -64,16 +68,14 @@ public class ExchangeRateService {
      * @param currency currency code to get the highest rate for
      * @return highest rate
      */
-    public BigDecimal getHighestRate(LocalDate startDate, LocalDate endDate, String currency) {
-        // Get the highest rate for the currency in the date range
-        BigDecimal highestRate = BigDecimal.ZERO;
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            BigDecimal rate = exchangeRates.get(date).getRates().get(currency);
-            if (rate.compareTo(highestRate) > 0) {
-                highestRate = rate;
-            }
-        }
-        return highestRate;
+    public BigDecimal getHighestRate(LocalDate startDate,
+                                        LocalDate endDate, String currency) {
+        Optional<BigDecimal> maxRate = exchangeRates
+                .subMap(startDate, true, endDate, true).values().stream()
+                .map(exchangeRate -> exchangeRate.getRates().get(currency))
+                .filter(Objects::nonNull)
+                .max(BigDecimal::compareTo);
+        return maxRate.orElse(null);
     }
 
     public BigDecimal getAverageRate(LocalDate startDate, LocalDate endDate, String currency) {
