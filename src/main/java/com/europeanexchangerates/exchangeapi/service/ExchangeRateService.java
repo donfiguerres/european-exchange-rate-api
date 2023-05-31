@@ -24,18 +24,46 @@ public class ExchangeRateService {
         this.exchangeRates = downloader.downloadData();
     } 
 
+    /**
+     * Get all the exchange rates for a given date.
+     * @param date date to get exchange rates for
+     * 
+     * @return exchange rates
+     */
     public ExchangeRate getRatesForDate(LocalDate date) {
         // Return exchange rate data for the given date
         return exchangeRates.get(date);
     }
 
-    public BigDecimal convertCurrency(LocalDate date, String source, String target, BigDecimal amount) {
-        // Convert the amount from source to target currency
+    /**
+     * Convert the amount from source to target currency.
+     * 
+     * The results are rounded using the RoundingMode.HALF_UP policy.
+     * 
+     * @param date date to get exchange rates for
+     * @param source source currency code
+     * @param target target currency code
+     * @param amount amount to convert
+     * 
+     * @return converted amount
+     */
+    public BigDecimal convertCurrency(LocalDate date, String source,
+                                        String target, BigDecimal amount) {
         BigDecimal sourceRate = exchangeRates.get(date).getRates().get(source);
         BigDecimal targetRate = exchangeRates.get(date).getRates().get(target);
-        return amount.multiply(sourceRate).divide(targetRate, 2, RoundingMode.HALF_UP);
+        if (sourceRate == null || targetRate == null)
+            return null;
+        return amount.multiply(targetRate)
+            .divide(sourceRate, 2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Get the highest rate for the currency in the date range.
+     * @param startDate start date of the date range
+     * @param endDate end date of the date range
+     * @param currency currency code to get the highest rate for
+     * @return highest rate
+     */
     public BigDecimal getHighestRate(LocalDate startDate, LocalDate endDate, String currency) {
         // Get the highest rate for the currency in the date range
         BigDecimal highestRate = BigDecimal.ZERO;
