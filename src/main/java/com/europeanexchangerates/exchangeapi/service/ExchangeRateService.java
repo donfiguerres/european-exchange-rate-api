@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
@@ -78,14 +79,25 @@ public class ExchangeRateService {
         return maxRate.orElse(null);
     }
 
+
+    /**
+     * Get the average rate for the currency in the date range
+     * @param startDate start date of the date range
+     * @param endDate end date of the date range
+     * @param currency currency code to get the highest rate for
+     * @return average rate
+    */
     public BigDecimal getAverageRate(LocalDate startDate, LocalDate endDate, String currency) {
-        // Get the average rate for the currency in the date range
-        BigDecimal sum = BigDecimal.ZERO;
-        int count = 0;
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            sum = sum.add(exchangeRates.get(date).getRates().get(currency));
-            count++;
-        }
-        return sum.divide(new BigDecimal(count), 2, RoundingMode.HALF_UP);
+        OptionalDouble average = exchangeRates
+                .subMap(startDate, true, endDate, true).values().stream()
+                .map(exchangeRate -> exchangeRate.getRates().get(currency))
+                .filter(Objects::nonNull)
+                .mapToDouble(BigDecimal::doubleValue)
+                .average();
+
+        return average.isPresent()
+                ? BigDecimal.valueOf(average.getAsDouble())
+                        .setScale(2, RoundingMode.HALF_UP)
+                : null;
     }
 }

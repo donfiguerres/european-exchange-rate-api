@@ -146,4 +146,37 @@ public class ExchangeRateServiceTest {
         assertEquals(null, 
             exchangeRateService.getHighestRate(startDate, endDate, "EEK"));
     }
+
+    @Test
+    void testGetAverageRate() {
+        // Includes a weekend. Should be processed properly.
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-26", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(BigDecimal.valueOf(1.07), 
+            exchangeRateService.getAverageRate(startDate, endDate, "USD"));
+    }
+
+
+    @Test
+    void testGetAverageRate_DaysWithoutData() {
+        // Includes days without data for the currency.
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-24", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(BigDecimal.valueOf(0.87), 
+            exchangeRateService.getAverageRate(startDate, endDate, "GBP"));
+    }
+
+    @Test
+    void testGetAverageRate_NoDataForCurrency() {
+        LocalDate startDate = LocalDate.parse(
+            "2023-05-24", DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.parse(
+            "2023-05-30", DateTimeFormatter.ISO_DATE);
+        assertEquals(null, 
+            exchangeRateService.getAverageRate(startDate, endDate, "EEK"));
+    }
 }
