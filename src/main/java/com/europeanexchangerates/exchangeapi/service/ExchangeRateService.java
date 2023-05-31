@@ -1,7 +1,7 @@
 package com.europeanexchangerates.exchangeapi.service;
 
-import jakarta.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -9,26 +9,20 @@ import org.springframework.stereotype.Service;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.UrlCsvZipDataDownloader;
+import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 
 @Service
 public class ExchangeRateService {
     private Map<LocalDate, ExchangeRate> exchangeRates;
 
-    public ExchangeRateService() {
-        // this.data = loadCSVData();
+    public ExchangeRateService() throws Exception {
+        DataDownloader downloader = new UrlCsvZipDataDownloader();
+        this.exchangeRates = downloader.downloadData();
     }
 
-    @PostConstruct
-    public void init() throws Exception {
-        this.exchangeRates = loadCSVData();
-    }
-
-    private Map<LocalDate, ExchangeRate> loadCSVData() throws Exception {
-        // Use WebClient to download the CSV file and CSVReader to parse it.
-        // Return a map of dates to exchange rate objects.
-        UrlCsvZipDataDownloader downloader = new UrlCsvZipDataDownloader();
-        return downloader.downloadData();
-    }
+    public ExchangeRateService(DataDownloader downloader) throws Exception {
+        this.exchangeRates = downloader.downloadData();
+    } 
 
     public ExchangeRate getRatesForDate(LocalDate date) {
         // Return exchange rate data for the given date
@@ -37,16 +31,31 @@ public class ExchangeRateService {
 
     public BigDecimal convertCurrency(LocalDate date, String source, String target, BigDecimal amount) {
         // Convert the amount from source to target currency
-        return null;
+        BigDecimal sourceRate = exchangeRates.get(date).getRates().get(source);
+        BigDecimal targetRate = exchangeRates.get(date).getRates().get(target);
+        return amount.multiply(sourceRate).divide(targetRate, 2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getHighestRate(LocalDate startDate, LocalDate endDate, String currency) {
         // Get the highest rate for the currency in the date range
-        return null;
+        BigDecimal highestRate = BigDecimal.ZERO;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            BigDecimal rate = exchangeRates.get(date).getRates().get(currency);
+            if (rate.compareTo(highestRate) > 0) {
+                highestRate = rate;
+            }
+        }
+        return highestRate;
     }
 
     public BigDecimal getAverageRate(LocalDate startDate, LocalDate endDate, String currency) {
         // Get the average rate for the currency in the date range
-        return null;
+        BigDecimal sum = BigDecimal.ZERO;
+        int count = 0;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            sum = sum.add(exchangeRates.get(date).getRates().get(currency));
+            count++;
+        }
+        return sum.divide(new BigDecimal(count), 2, RoundingMode.HALF_UP);
     }
 }

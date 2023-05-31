@@ -11,7 +11,7 @@ import java.util.zip.ZipInputStream;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 
-public class UrlCsvZipDataDownloader {
+public class UrlCsvZipDataDownloader implements DataDownloader{
     public Map<LocalDate, ExchangeRate> downloadData() throws Exception {
         String url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip";
         Map<LocalDate, ExchangeRate> exchangeRates = new HashMap<>();
@@ -35,7 +35,7 @@ public class UrlCsvZipDataDownloader {
                         rates.put(headers[i], new BigDecimal(data[i]));
                     }
                 }
-                exchangeRates.put(date, new ExchangeRate(date, rates));
+                exchangeRates.put(date, new ExchangeRate(rates));
             }
         }
 
