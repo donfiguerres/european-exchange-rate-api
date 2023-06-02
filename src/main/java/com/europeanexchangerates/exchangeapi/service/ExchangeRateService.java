@@ -10,7 +10,9 @@ import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
+import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.UrlCsvZipDataDownloader;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
@@ -72,14 +74,17 @@ public class ExchangeRateService {
      * @param currency currency code to get the highest rate for
      * @return highest rate
      */
-    public BigDecimal getHighestRate(LocalDate startDate,
+    public CurrencyHighestRate getHighestRate(LocalDate startDate,
                                         LocalDate endDate, String currency) {
         Optional<BigDecimal> maxRate = exchangeRates
                 .subMap(startDate, true, endDate, true).values().stream()
                 .map(exchangeRate -> exchangeRate.getRates().get(currency))
                 .filter(Objects::nonNull)
                 .max(BigDecimal::compareTo);
-        return maxRate.orElse(null);
+        BigDecimal highestRate = maxRate.orElse(null);
+        return highestRate == null
+            ? null
+            : new CurrencyHighestRate(currency, startDate, endDate, highestRate);
     }
 
 
@@ -90,7 +95,8 @@ public class ExchangeRateService {
      * @param currency currency code to get the highest rate for
      * @return average rate
     */
-    public BigDecimal getAverageRate(LocalDate startDate, LocalDate endDate, String currency) {
+    public CurrencyAverageRate getAverageRate(LocalDate startDate,
+                                        LocalDate endDate, String currency) {
         OptionalDouble average = exchangeRates
                 .subMap(startDate, true, endDate, true).values().stream()
                 .map(exchangeRate -> exchangeRate.getRates().get(currency))
@@ -98,9 +104,12 @@ public class ExchangeRateService {
                 .mapToDouble(BigDecimal::doubleValue)
                 .average();
 
-        return average.isPresent()
+        BigDecimal avrageRate = average.isPresent()
                 ? BigDecimal.valueOf(average.getAsDouble())
                         .setScale(2, RoundingMode.HALF_UP)
                 : null;
+        return avrageRate == null
+            ? null
+            : new CurrencyAverageRate(currency, startDate, endDate, avrageRate);
     }
 }

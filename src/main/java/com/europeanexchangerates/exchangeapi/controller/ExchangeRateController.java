@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
+import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.service.ExchangeRateService;
 
@@ -37,7 +39,7 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/highest_rate")
-    public BigDecimal getHighestRate(
+    public CurrencyHighestRate getHighestRate(
             @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("currency") String currency) {
@@ -45,7 +47,7 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/average_rate")
-    public BigDecimal getAverageRate(
+    public CurrencyAverageRate getAverageRate(
             @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("currency") String currency) {

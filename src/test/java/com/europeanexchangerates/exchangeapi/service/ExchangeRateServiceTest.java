@@ -20,7 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
+import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 import com.europeanexchangerates.exchangeapi.util.NullableConverter;
@@ -131,8 +133,13 @@ public class ExchangeRateServiceTest {
                             .parse(startDateString, DateTimeFormatter.ISO_DATE);
         LocalDate endDate = LocalDate
                             .parse(endDateString, DateTimeFormatter.ISO_DATE);
-        assertEquals(expected, exchangeRateService
-                                .getHighestRate(startDate, endDate, currency));
+        CurrencyHighestRate result = exchangeRateService
+                                .getHighestRate(startDate, endDate, currency);
+        if (expected == null) {
+            assertNull(result);
+        } else {
+            assertEquals(expected, result.getHighestRate());
+        }
     }
 
     @ParameterizedTest
@@ -151,7 +158,12 @@ public class ExchangeRateServiceTest {
                         .parse(startDateString, DateTimeFormatter.ISO_DATE);
         LocalDate endDate = LocalDate
                         .parse(endDateString, DateTimeFormatter.ISO_DATE);
-        assertEquals(expected, exchangeRateService
-                                .getAverageRate(startDate, endDate, currency));
+        CurrencyAverageRate result = exchangeRateService
+                                .getAverageRate(startDate, endDate, currency);
+        if (expected == null) {
+            assertNull(result);
+        } else {
+            assertEquals(expected, result.getAverageRate());
+        }
     }
 }
