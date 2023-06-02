@@ -104,12 +104,12 @@ public class ExchangeRateService {
                 .mapToDouble(BigDecimal::doubleValue)
                 .average();
 
-        BigDecimal avrageRate = average.isPresent()
+        BigDecimal averageRate = average.isPresent()
                 ? BigDecimal.valueOf(average.getAsDouble())
                         .setScale(2, RoundingMode.HALF_UP)
                 : null;
-        return avrageRate == null
+        return averageRate == null
             ? null
-            : new CurrencyAverageRate(currency, startDate, endDate, avrageRate);
+            : new CurrencyAverageRate(currency, startDate, endDate, averageRate);
     }
 }
