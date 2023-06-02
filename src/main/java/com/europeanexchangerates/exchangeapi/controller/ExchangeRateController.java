@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.service.ExchangeRateService;
 
@@ -27,7 +28,7 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/convert")
-    public BigDecimal convertCurrency(
+    public CurrencyConversion convertCurrency(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam("source") String source,
             @RequestParam("target") String target,

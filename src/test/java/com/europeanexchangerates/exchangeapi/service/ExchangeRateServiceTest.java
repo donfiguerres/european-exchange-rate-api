@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 import com.europeanexchangerates.exchangeapi.util.NullableConverter;
@@ -105,8 +106,13 @@ public class ExchangeRateServiceTest {
                 @ConvertWith(NullableConverter.class) BigDecimal expected) {
         LocalDate inputDate = LocalDate
                                 .parse(dateString, DateTimeFormatter.ISO_DATE);
-        assertEquals(expected, exchangeRateService
-            .convertCurrency(inputDate, sourceCurrency, targetCurrency, amount));
+        CurrencyConversion result = exchangeRateService
+                .convertCurrency(inputDate, sourceCurrency, targetCurrency, amount);
+        if (expected == null) {
+            assertNull(result);
+        } else {
+            assertEquals(expected, result.getConvertedAmount());
+        }
     }
 
     @ParameterizedTest

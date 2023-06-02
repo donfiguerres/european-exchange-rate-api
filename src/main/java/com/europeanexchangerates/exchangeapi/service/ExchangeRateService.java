@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
 
+import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.UrlCsvZipDataDownloader;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
@@ -52,14 +53,16 @@ public class ExchangeRateService {
      * 
      * @return converted amount
      */
-    public BigDecimal convertCurrency(LocalDate date, String source,
+    public CurrencyConversion convertCurrency(LocalDate date, String source,
                                         String target, BigDecimal amount) {
         BigDecimal sourceRate = exchangeRates.get(date).getRates().get(source);
         BigDecimal targetRate = exchangeRates.get(date).getRates().get(target);
         if (sourceRate == null || targetRate == null)
             return null;
-        return amount.multiply(targetRate)
+        BigDecimal convertedValue =  amount.multiply(targetRate)
             .divide(sourceRate, 2, RoundingMode.HALF_UP);
+
+        return new CurrencyConversion(source, target, amount, date, convertedValue);
     }
 
     /**
