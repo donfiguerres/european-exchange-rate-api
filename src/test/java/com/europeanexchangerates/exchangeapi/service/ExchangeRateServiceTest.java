@@ -8,8 +8,10 @@ import java.util.TreeMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +22,7 @@ import static org.mockito.Mockito.*;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
+import com.europeanexchangerates.exchangeapi.util.NullableConverter;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -67,116 +70,82 @@ public class ExchangeRateServiceTest {
         exchangeRateService = new ExchangeRateService(dataDownloader);
     }
 
-    @Test
-    void testGetRatesForDate() {
-        LocalDate inputDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
+    @ParameterizedTest
+    @CsvSource({
+        "2023-05-30, USD, 1.0744",
+        "2023-05-30, JPY, 150.01",
+        "2023-05-30, BGN, 1.9558",
+        "2023-05-30, GBP, 0.86365",
+        "2023-05-30, EEK, null"
+    })
+    void testGetRatesForDate(String dateString, String currency,
+            @ConvertWith(NullableConverter.class) BigDecimal expected) {
+        LocalDate inputDate = LocalDate.
+                            parse(dateString, DateTimeFormatter.ISO_DATE);
         Map<String, BigDecimal> rates = exchangeRateService
                                     .getRatesForDate(inputDate).getRates();
-        assertEquals(BigDecimal.valueOf(1.0744), rates.get("USD"));
-        assertEquals(BigDecimal.valueOf(150.01), rates.get("JPY"));
-        assertEquals(BigDecimal.valueOf(1.9558), rates.get("BGN"));
-        assertEquals(BigDecimal.valueOf(0.86365), rates.get("GBP"));
-
-        // Missing
-        assertEquals(null, rates.get("EEK"));
+        assertEquals(expected, rates.get(currency));
     }
 
-
-    @Test
-    void testConvertCurrency() {
-        LocalDate inputDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
+    @ParameterizedTest
+    @CsvSource({
         // rounded down
-        assertEquals(BigDecimal.valueOf(13962.21),
-            exchangeRateService.convertCurrency(inputDate, "USD",
-                                            "JPY", BigDecimal.valueOf(100))
-        );
-        // rounded up
-        assertEquals(BigDecimal.valueOf(44.16),
-            exchangeRateService.convertCurrency(inputDate, "BGN",
-                                            "GBP", BigDecimal.valueOf(100))
-        );
+        "2023-05-30, USD, JPY, 100, 13962.21",
+        //rounded up
+        "2023-05-30, BGN, GBP, 100, 44.16",
         // target is missing
-        assertEquals(null,
-            exchangeRateService.convertCurrency(inputDate, "BGN",
-                                            "EEK", BigDecimal.valueOf(100))
-        );
+        "2023-05-30, BGN, EEK, 100, null",
         // source is missing
-        assertEquals(null,
-            exchangeRateService.convertCurrency(inputDate, "EEK",
-                                            "BGN", BigDecimal.valueOf(100))
-        );
+        "2023-05-30, EEK, BGN, 100, null",
         // both source and target are missing
-        assertEquals(null,
-            exchangeRateService.convertCurrency(inputDate, "EEK",
-                                            "TRL", BigDecimal.valueOf(100))
-        );
+        "2023-05-30, EEK, TRL, 100, null"
+    })
+    void testConvertCurrency(String dateString, String sourceCurrency, 
+                String targetCurrency, BigDecimal amount,
+                @ConvertWith(NullableConverter.class) BigDecimal expected) {
+        LocalDate inputDate = LocalDate
+                                .parse(dateString, DateTimeFormatter.ISO_DATE);
+        assertEquals(expected, exchangeRateService
+            .convertCurrency(inputDate, sourceCurrency, targetCurrency, amount));
     }
 
-    @Test
-    void testGetHighestRate() {
-        // Includes a weekend. Should be processed properly.
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-26", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(BigDecimal.valueOf(1.0751), 
-            exchangeRateService.getHighestRate(startDate, endDate, "USD"));
+    @ParameterizedTest
+    @CsvSource({
+        // includes a weekend - should be processed properly
+        "2023-05-26, 2023-05-30, USD, 1.0751",
+        // includes days without data for the currency
+        "2023-05-24, 2023-05-30, GBP, 0.86993",
+        // no data for the currency
+        "2023-05-24, 2023-05-30, EEK, null"
+    })
+    void testGetHighestRate(String startDateString, String endDateString,
+                String currency,
+                @ConvertWith(NullableConverter.class) BigDecimal expected) {
+        LocalDate startDate = LocalDate
+                            .parse(startDateString, DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate
+                            .parse(endDateString, DateTimeFormatter.ISO_DATE);
+        assertEquals(expected, exchangeRateService
+                                .getHighestRate(startDate, endDate, currency));
     }
 
-
-    @Test
-    void testGetHighestRate_DaysWithoutData() {
-        // Includes days without data for the currency.
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-24", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(BigDecimal.valueOf(0.86993), 
-            exchangeRateService.getHighestRate(startDate, endDate, "GBP"));
-    }
-
-    @Test
-    void testGetHighestRate_NoDataForCurrency() {
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-24", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(null, 
-            exchangeRateService.getHighestRate(startDate, endDate, "EEK"));
-    }
-
-    @Test
-    void testGetAverageRate() {
-        // Includes a weekend. Should be processed properly.
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-26", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(BigDecimal.valueOf(1.07), 
-            exchangeRateService.getAverageRate(startDate, endDate, "USD"));
-    }
-
-
-    @Test
-    void testGetAverageRate_DaysWithoutData() {
-        // Includes days without data for the currency.
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-24", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(BigDecimal.valueOf(0.87), 
-            exchangeRateService.getAverageRate(startDate, endDate, "GBP"));
-    }
-
-    @Test
-    void testGetAverageRate_NoDataForCurrency() {
-        LocalDate startDate = LocalDate.parse(
-            "2023-05-24", DateTimeFormatter.ISO_DATE);
-        LocalDate endDate = LocalDate.parse(
-            "2023-05-30", DateTimeFormatter.ISO_DATE);
-        assertEquals(null, 
-            exchangeRateService.getAverageRate(startDate, endDate, "EEK"));
+    @ParameterizedTest
+    @CsvSource({
+        // includes a weekend - should be processed properly
+        "2023-05-26, 2023-05-30, USD, 1.07",
+        // includes days without data for the currency
+        "2023-05-24, 2023-05-30, GBP, 0.87",
+        // no data for the currency
+        "2023-05-24, 2023-05-30, EEK, null"
+    })
+    void testGetAverageRate(String startDateString, String endDateString,
+            String currency,
+            @ConvertWith(NullableConverter.class) BigDecimal expected) {
+        LocalDate startDate = LocalDate
+                        .parse(startDateString, DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate
+                        .parse(endDateString, DateTimeFormatter.ISO_DATE);
+        assertEquals(expected, exchangeRateService
+                                .getAverageRate(startDate, endDate, currency));
     }
 }
