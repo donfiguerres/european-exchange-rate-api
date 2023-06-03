@@ -6,10 +6,11 @@
 
 This project provides a RESTful API to access and convert exchange rates. You
 can do the following using this API
-    - Retrieve the current rate for a specific date.
-    - Convert an amount from one currency to another for a specific date
-    - Get historical data statistics such as the highest and average rate over
-        a certain period.
+
+- Retrieve the current rate for a specific date.
+- Convert an amount from one currency to another for a specific date
+- Get historical data statistics such as the highest and average rate over
+    a certain period.
 
 ## Building the Application
 
