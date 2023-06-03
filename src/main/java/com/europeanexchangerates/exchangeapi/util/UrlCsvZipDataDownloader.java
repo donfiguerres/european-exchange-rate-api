@@ -12,7 +12,7 @@ import java.util.zip.ZipInputStream;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 
-public class UrlCsvZipDataDownloader implements DataDownloader{
+public class UrlCsvZipDataDownloader implements DataDownloader {
     public TreeMap<LocalDate, ExchangeRate> downloadData() throws Exception {
         String url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip";
         TreeMap<LocalDate, ExchangeRate> exchangeRates = new TreeMap<>();
