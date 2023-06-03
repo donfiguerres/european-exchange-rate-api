@@ -3,6 +3,11 @@ package com.europeanexchangerates.exchangeapi.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,8 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/rates")
+    @Operation(summary = "Get all the available exchange rates for a given date.")
+    @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date.")
     public ResponseEntity<ExchangeRate> getRates(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         ExchangeRate exchangeRate = service.getRatesForDate(date);
@@ -37,6 +44,8 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/convert")
+    @Operation(summary = "Convert a specific amount from one currency to another.")
+    @ApiResponse(responseCode = "204", description = "No exchange rate found for the given date.")
     public ResponseEntity<CurrencyConversion> convertCurrency(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam("source") String source,
@@ -51,6 +60,8 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/highest_rate")
+    @Operation(summary = "Get the highest exchange rate for a given currency for a given date range.")
+    @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
     public ResponseEntity<CurrencyHighestRate> getHighestRate(
             @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -64,6 +75,8 @@ public class ExchangeRateController {
     }
 
     @GetMapping("/average_rate")
+    @Operation(summary = "Get the average exchange rate for a given currency for a given date range.")
+    @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
     public ResponseEntity<CurrencyAverageRate> getAverageRate(
             @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

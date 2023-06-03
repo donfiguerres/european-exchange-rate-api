@@ -3,9 +3,9 @@ package com.europeanexchangerates.exchangeapi.dto;
 import java.math.BigDecimal;
 import java.util.Map;
 
-/**
- * Exchange rates for a given date.
- */
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Contains all the exchange rates for a given date")
 public class ExchangeRate {
     private Map<String, BigDecimal> rates;
 

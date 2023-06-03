@@ -3,6 +3,9 @@ package com.europeanexchangerates.exchangeapi.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Represents a conversion between two currencies")
 public class CurrencyConversion {
     private String sourceCurrency;
     private String targetCurrency;
