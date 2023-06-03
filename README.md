@@ -27,7 +27,7 @@ gradle bootRun
 This will start the application and it will be accessible at
 <http://localhost:8080>.
 
-# OpenAPI Specification
+## OpenAPI Specification
 
 This project uses `springdoc-openapi` to automatically generate API
 documentation according to the OpenAPI specification. You can access this
