@@ -41,7 +41,6 @@ public class ExchangeRateService {
      * @return exchange rates
      */
     public ExchangeRate getRatesForDate(LocalDate date) {
-        // Return exchange rate data for the given date
         return exchangeRates.get(date);
     }
 
@@ -114,12 +113,11 @@ public class ExchangeRateService {
                 .mapToDouble(BigDecimal::doubleValue)
                 .average();
 
-        BigDecimal averageRate = average.isPresent()
-                ? BigDecimal.valueOf(average.getAsDouble())
-                        .setScale(2, RoundingMode.HALF_UP)
-                : null;
-        return averageRate == null
-                ? null
-                : new CurrencyAverageRate(currency, startDate, endDate, averageRate);
+        if (!average.isPresent())
+            return null;
+
+        BigDecimal averageRate = BigDecimal.valueOf(average.getAsDouble())
+                .setScale(2, RoundingMode.HALF_UP);
+        return new CurrencyAverageRate(currency, startDate, endDate, averageRate);
     }
 }
