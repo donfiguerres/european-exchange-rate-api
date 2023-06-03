@@ -14,6 +14,7 @@ import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
+import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
 import com.europeanexchangerates.exchangeapi.util.UrlCsvZipDataDownloader;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 
@@ -30,10 +31,11 @@ public class ExchangeRateService {
 
     public ExchangeRateService(DataDownloader downloader) throws Exception {
         this.exchangeRates = downloader.downloadData();
-    } 
+    }
 
     /**
      * Get all the exchange rates for a given date.
+     * 
      * @param date date to get exchange rates for
      * 
      * @return exchange rates
@@ -48,7 +50,7 @@ public class ExchangeRateService {
      * 
      * The results are rounded using the RoundingMode.HALF_UP policy.
      * 
-     * @param date date to get exchange rates for
+     * @param date   date to get exchange rates for
      * @param source source currency code
      * @param target target currency code
      * @param amount amount to convert
@@ -56,26 +58,30 @@ public class ExchangeRateService {
      * @return converted amount
      */
     public CurrencyConversion convertCurrency(LocalDate date, String source,
-                                        String target, BigDecimal amount) {
+            String target, BigDecimal amount) {
         BigDecimal sourceRate = exchangeRates.get(date).getRates().get(source);
         BigDecimal targetRate = exchangeRates.get(date).getRates().get(target);
         if (sourceRate == null || targetRate == null)
             return null;
-        BigDecimal convertedValue =  amount.multiply(targetRate)
-            .divide(sourceRate, 2, RoundingMode.HALF_UP);
+        BigDecimal convertedValue = amount.multiply(targetRate)
+                .divide(sourceRate, 2, RoundingMode.HALF_UP);
 
         return new CurrencyConversion(source, target, amount, date, convertedValue);
     }
 
     /**
      * Get the highest rate for the currency in the date range.
+     * 
      * @param startDate start date of the date range
-     * @param endDate end date of the date range
-     * @param currency currency code to get the highest rate for
+     * @param endDate   end date of the date range
+     * @param currency  currency code to get the highest rate for
      * @return highest rate
      */
     public CurrencyHighestRate getHighestRate(LocalDate startDate,
-                                        LocalDate endDate, String currency) {
+            LocalDate endDate, String currency) {
+        if (endDate.isBefore(startDate)) {
+            throw new InvalidDateRangeException("End date cannot be before start date.");
+        }
         Optional<BigDecimal> maxRate = exchangeRates
                 .subMap(startDate, true, endDate, true).values().stream()
                 .map(exchangeRate -> exchangeRate.getRates().get(currency))
@@ -83,20 +89,24 @@ public class ExchangeRateService {
                 .max(BigDecimal::compareTo);
         BigDecimal highestRate = maxRate.orElse(null);
         return highestRate == null
-            ? null
-            : new CurrencyHighestRate(currency, startDate, endDate, highestRate);
+                ? null
+                : new CurrencyHighestRate(currency, startDate, endDate, highestRate);
     }
-
 
     /**
      * Get the average rate for the currency in the date range
+     * 
      * @param startDate start date of the date range
-     * @param endDate end date of the date range
-     * @param currency currency code to get the highest rate for
+     * @param endDate   end date of the date range
+     * @param currency  currency code to get the highest rate for
      * @return average rate
-    */
+     */
     public CurrencyAverageRate getAverageRate(LocalDate startDate,
-                                        LocalDate endDate, String currency) {
+            LocalDate endDate, String currency) {
+        if (endDate.isBefore(startDate)) {
+            throw new InvalidDateRangeException("End date cannot be before start date.");
+        }
+
         OptionalDouble average = exchangeRates
                 .subMap(startDate, true, endDate, true).values().stream()
                 .map(exchangeRate -> exchangeRate.getRates().get(currency))
@@ -109,7 +119,7 @@ public class ExchangeRateService {
                         .setScale(2, RoundingMode.HALF_UP)
                 : null;
         return averageRate == null
-            ? null
-            : new CurrencyAverageRate(currency, startDate, endDate, averageRate);
+                ? null
+                : new CurrencyAverageRate(currency, startDate, endDate, averageRate);
     }
 }

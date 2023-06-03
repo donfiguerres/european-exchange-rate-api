@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +20,7 @@ import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
+import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
 import com.europeanexchangerates.exchangeapi.service.ExchangeRateService;
 
 @RestController
@@ -61,6 +64,7 @@ public class ExchangeRateController {
     @GetMapping("/highest_rate")
     @Operation(summary = "Get the highest exchange rate for a given currency for a given date range.")
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
+    @ApiResponse(responseCode = "422", description = "End date is before the start date.")
     public ResponseEntity<CurrencyHighestRate> getHighestRate(
             @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -76,6 +80,7 @@ public class ExchangeRateController {
     @GetMapping("/average_rate")
     @Operation(summary = "Get the average exchange rate for a given currency for a given date range.")
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
+    @ApiResponse(responseCode = "422", description = "End date is before the start date.")
     public ResponseEntity<CurrencyAverageRate> getAverageRate(
             @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -86,5 +91,10 @@ public class ExchangeRateController {
         } else {
             return ResponseEntity.ok(averageRate);
         }
+    }
+
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<String> handleInvalidDateRangeException(InvalidDateRangeException e) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
     }
 }

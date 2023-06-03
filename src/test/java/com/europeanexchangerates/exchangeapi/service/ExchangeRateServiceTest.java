@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
@@ -24,6 +25,7 @@ import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
+import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
 import com.europeanexchangerates.exchangeapi.util.DataDownloader;
 import com.europeanexchangerates.exchangeapi.util.NullableConverter;
 
@@ -153,6 +155,16 @@ public class ExchangeRateServiceTest {
         }
     }
 
+    @Test
+    public void getHighestRate_endDateBeforeStartDate_throwsInvalidDateRangeException() {
+        LocalDate startDate = LocalDate.of(2023, 5, 30);
+        LocalDate endDate = LocalDate.of(2023, 5, 29);
+
+        assertThrows(InvalidDateRangeException.class, () -> {
+            exchangeRateService.getHighestRate(startDate, endDate, "USD");
+        });
+    }
+
     @ParameterizedTest
     @CsvSource({
             // includes a weekend - should be processed properly
@@ -176,5 +188,15 @@ public class ExchangeRateServiceTest {
         } else {
             assertEquals(expected, result.getAverageRate());
         }
+    }
+
+    @Test
+    public void getAverageRate_endDateBeforeStartDate_throwsInvalidDateRangeException() {
+        LocalDate startDate = LocalDate.of(2023, 5, 30);
+        LocalDate endDate = LocalDate.of(2023, 5, 29);
+
+        assertThrows(InvalidDateRangeException.class, () -> {
+            exchangeRateService.getAverageRate(startDate, endDate, "USD");
+        });
     }
 }

@@ -15,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.europeanexchangerates.exchangeapi.dto.CurrencyAverageRate;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
+import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
 import com.europeanexchangerates.exchangeapi.service.ExchangeRateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -138,6 +140,19 @@ public class ExchangeRateControllerTest {
     }
 
     @Test
+    public void getHighestRate_endDateBeforeStartDate_returnsUnprocessableEntity() throws Exception {
+        when(service.getHighestRate(
+            LocalDate.of(2023, 5, 30),
+            LocalDate.of(2023, 5, 29),
+            "USD")).thenThrow(new InvalidDateRangeException("End date cannot be before start date."));
+        mockMvc.perform(get("/highest_rate")
+                .param("start_date", "2023-05-30")
+                .param("end_date", "2023-05-29")
+                .param("currency", "USD"))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     public void testGetAverageRateEndpoint() throws Exception {
         CurrencyAverageRate averageRate = new CurrencyAverageRate(
                 "USD",
@@ -168,5 +183,18 @@ public class ExchangeRateControllerTest {
                 .param("currency", "USD"))
                 .andExpect(status().isNoContent())
                 .andReturn();
+    }
+
+    @Test
+    public void getAverageRate_endDateBeforeStartDate_returnsUnprocessableEntity() throws Exception {
+        when(service.getAverageRate(
+            LocalDate.of(2023, 5, 30),
+            LocalDate.of(2023, 5, 29),
+            "USD")).thenThrow(new InvalidDateRangeException("End date cannot be before start date."));
+        mockMvc.perform(get("/average_rate")
+                .param("start_date", "2023-05-30")
+                .param("end_date", "2023-05-29")
+                .param("currency", "USD"))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
