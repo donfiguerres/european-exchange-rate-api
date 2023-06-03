@@ -13,10 +13,18 @@ can do the following using this API
 
 ## Building the Application
 
-Gradle is required in order to build and run this project.
+A gradle wrapper is already included in this project. You perform the build by
+running the following command in the project's root directory.
 
-If you do not have `gradle` installed yet, follow the installation guide at
-<https://gradle.org/install/>.
+```bash
+./gradlew build
+```
+
+If you already have gradle installed then you can use that as well.
+
+```bash
+gradle build
+```
 
 ## Running the Application
 
