@@ -1,5 +1,7 @@
 # Exchange Rate API
 
+![actions workflow](https://github.com/donfiguerres/european-exchange-rate-api/actions/workflows/ci.yml/badge.svg)
+
 ## Introduction
 
 This project provides a RESTful API to access and convert exchange rates. You
