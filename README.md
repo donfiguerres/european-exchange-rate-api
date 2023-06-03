@@ -53,3 +53,12 @@ For the UI version, visit:
 ```text
 http://localhost:8080/swagger-ui.html
 ```
+
+## Data Source
+
+The data source used by this API is the CSV formatted historical Euro foreign
+exchange reference rates data published by the European Central Bank at
+<https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip>.
+
+See also
+<https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html>
