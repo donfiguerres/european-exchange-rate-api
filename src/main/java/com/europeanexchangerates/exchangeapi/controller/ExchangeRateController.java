@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class ExchangeRateController {
     @Operation(summary = "Get all the available exchange rates for a given date.")
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date.")
     public ResponseEntity<ExchangeRate> getRates(
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @Parameter(description = "Date from which to get the exchange rates. Must be ISO formatted.") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         ExchangeRate exchangeRate = service.getRatesForDate(date);
         if (exchangeRate == null) {
             return ResponseEntity.noContent().build();
@@ -47,10 +46,10 @@ public class ExchangeRateController {
     @Operation(summary = "Convert a specific amount from one currency to another.")
     @ApiResponse(responseCode = "204", description = "No exchange rate found for the given date.")
     public ResponseEntity<CurrencyConversion> convertCurrency(
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam("source") String source,
-            @RequestParam("target") String target,
-            @RequestParam("amount") BigDecimal amount) {
+            @Parameter(description = "Date to use for the conversion . Must be ISO formatted.") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @Parameter(description = "Currency to convert from") @RequestParam("source") String source,
+            @Parameter(description = "Currency to convert to") @RequestParam("target") String target,
+            @Parameter(description = "Amount to convert") @RequestParam("amount") BigDecimal amount) {
         CurrencyConversion conversion = service.convertCurrency(date, source, target, amount);
         if (conversion == null) {
             return ResponseEntity.noContent().build();
@@ -63,9 +62,9 @@ public class ExchangeRateController {
     @Operation(summary = "Get the highest exchange rate for a given currency for a given date range.")
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
     public ResponseEntity<CurrencyHighestRate> getHighestRate(
-            @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam("currency") String currency) {
+            @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @Parameter(description = "Currency to get the highest rate for.") @RequestParam("currency") String currency) {
         CurrencyHighestRate highestRate = service.getHighestRate(startDate, endDate, currency);
         if (highestRate == null) {
             return ResponseEntity.noContent().build();
@@ -78,9 +77,9 @@ public class ExchangeRateController {
     @Operation(summary = "Get the average exchange rate for a given currency for a given date range.")
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date range.")
     public ResponseEntity<CurrencyAverageRate> getAverageRate(
-            @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam("currency") String currency) {
+            @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @Parameter(description = "Currency to get the average rate for.") @RequestParam("currency") String currency) {
         CurrencyAverageRate averageRate = service.getAverageRate(startDate, endDate, currency);
         if (averageRate == null) {
             return ResponseEntity.noContent().build();
