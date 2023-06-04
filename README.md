@@ -117,6 +117,12 @@ correctness. Mocking is used to isolate the component under test and create
 controlled test scenarios. Logging is also tested to ensure appropriate warning
 messages are logged under specific conditions.
 
+### Behavior Driven Development
+
+A gherkin file is included and is located at
+`test/resources/features/currency_exchange_rates.feature` to help facilitate
+behavior driven development.
+
 ### Project Structure
 
 The project is structured in a logical and intuitive manner. It includes the
