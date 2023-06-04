@@ -15,6 +15,10 @@ import com.europeanexchangerates.exchangeapi.util.datadownloader.UrlCsvZipDataDo
 import com.europeanexchangerates.exchangeapi.util.dataparser.CsvDataParser;
 import com.europeanexchangerates.exchangeapi.util.dataparser.DataParser;
 
+/**
+ * Fetches data from the European Central Bank's URL and parses it into a
+ * TreeMap.
+ */
 public class UrlCsvZipExchangeRateProvider implements ExchangeRateProvider {
     private DataDownloader downloader;
     private DataParser parser;
@@ -30,6 +34,12 @@ public class UrlCsvZipExchangeRateProvider implements ExchangeRateProvider {
         this.parser = parser;
     }
 
+    /**
+     * Fetch the data from the URL and parse it into a TreeMap.
+     * 
+     * Only one CSV file is expected from the ZIP file. If more than one file
+     * is found then a warning log message is logged.
+     */
     public TreeMap<LocalDate, ExchangeRate> getExchangeRates() throws Exception {
         InputStream data = downloader.downloadData("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip");
 
