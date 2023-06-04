@@ -39,8 +39,12 @@ public class UrlCsvZipExchangeRateProvider implements ExchangeRateProvider {
         }
         TreeMap<LocalDate, ExchangeRate> exchangeRates = parser.parseData(data);
 
-        // If the zip file has changed, skip the next files but log a warning.
-        // Ideally, alerts should be sent if running in a production environment.
+        // If the zip file has changed, keep the current behavior by skipping
+        // the next files and but log a warning. This will prevent the service
+        // from going down if the zip file is updated.
+        // Ideally, alerts should be sent if running in a production
+        // environment. Some platforms can ingest the log messages and send out
+        // alerts for specific log messages.
         if (((ZipInputStream) data).getNextEntry() != null) {
             LOGGER.warn("The contents of the zip archive has changed. Please check the data source.");
         }
