@@ -143,6 +143,7 @@ public class ExchangeRateServiceTest {
             "1995-05-24, 2040-05-30, GBP, 0.86993",
             // no data for the currency
             "2023-05-24, 2023-05-30, EEK, null",
+            "1995-05-24, 2000-05-30, GBP, null",
     })
     void testGetHighestRate(String startDateString, String endDateString,
             String currency,
@@ -177,7 +178,8 @@ public class ExchangeRateServiceTest {
             // includes days without data for the currency
             "2023-05-24, 2023-05-30, GBP, 0.87",
             // no data for the currency
-            "2023-05-24, 2023-05-30, EEK, null"
+            "2023-05-24, 2023-05-30, EEK, null",
+            "1995-05-24, 2000-05-30, GBP, null"
     })
     void testGetAverageRate(String startDateString, String endDateString,
             String currency,
