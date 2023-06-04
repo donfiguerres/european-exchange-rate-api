@@ -15,8 +15,8 @@ import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
-import com.europeanexchangerates.exchangeapi.util.UrlCsvZipDataDownloader;
-import com.europeanexchangerates.exchangeapi.util.DataDownloader;
+import com.europeanexchangerates.exchangeapi.provider.ExchangeRateProvider;
+import com.europeanexchangerates.exchangeapi.provider.UrlCsvZipExchangeRateProvider;
 
 @Service
 public class ExchangeRateService {
@@ -25,12 +25,12 @@ public class ExchangeRateService {
     private TreeMap<LocalDate, ExchangeRate> exchangeRates;
 
     public ExchangeRateService() throws Exception {
-        DataDownloader downloader = new UrlCsvZipDataDownloader();
-        this.exchangeRates = downloader.downloadData();
+        ExchangeRateProvider provider = new UrlCsvZipExchangeRateProvider();
+        this.exchangeRates = provider.getExchangeRates();
     }
 
-    public ExchangeRateService(DataDownloader downloader) throws Exception {
-        this.exchangeRates = downloader.downloadData();
+    public ExchangeRateService(ExchangeRateProvider provider) throws Exception {
+        this.exchangeRates = provider.getExchangeRates();
     }
 
     /**

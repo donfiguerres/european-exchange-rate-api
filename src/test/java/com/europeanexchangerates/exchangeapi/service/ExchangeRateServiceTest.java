@@ -26,7 +26,7 @@ import com.europeanexchangerates.exchangeapi.dto.CurrencyConversion;
 import com.europeanexchangerates.exchangeapi.dto.CurrencyHighestRate;
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
 import com.europeanexchangerates.exchangeapi.exception.InvalidDateRangeException;
-import com.europeanexchangerates.exchangeapi.util.DataDownloader;
+import com.europeanexchangerates.exchangeapi.provider.UrlCsvZipExchangeRateProvider;
 import com.europeanexchangerates.exchangeapi.util.NullableConverter;
 
 @SpringBootTest
@@ -35,7 +35,7 @@ public class ExchangeRateServiceTest {
     private ExchangeRateService exchangeRateService;
 
     @Mock
-    DataDownloader dataDownloader;
+    UrlCsvZipExchangeRateProvider exchangeRateProvider;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -82,9 +82,9 @@ public class ExchangeRateServiceTest {
                 }));
             }
         };
-        when(dataDownloader.downloadData()).thenReturn(dummyData);
+        when(exchangeRateProvider.getExchangeRates()).thenReturn(dummyData);
 
-        exchangeRateService = new ExchangeRateService(dataDownloader);
+        exchangeRateService = new ExchangeRateService(exchangeRateProvider);
     }
 
     @ParameterizedTest
