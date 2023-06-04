@@ -6,9 +6,7 @@ import static org.mockito.Mockito.*;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
@@ -48,22 +46,6 @@ public class UrlCsvZipExchangeRateProviderTest {
     @BeforeEach
     void setUp() throws Exception {
 
-        TreeMap<LocalDate, ExchangeRate> dummyData = new TreeMap<>() {
-            {
-                put(LocalDate.of(2023, 5, 30), new ExchangeRate(new HashMap<>() {
-                    {
-                        put("USD", BigDecimal.valueOf(1.0744));
-                        put("JPY", BigDecimal.valueOf(150.01));
-                        put("BGN", BigDecimal.valueOf(1.9558));
-                        put("GBP", BigDecimal.valueOf(0.86365));
-                    }
-                }));
-            }
-        };
-
-        // when(dataParser.parseData(any())).thenReturn(dummyData);
-
-        // Get the Logger for the class under test.
         logger = (Logger) LoggerFactory.getLogger(UrlCsvZipExchangeRateProvider.class);
         listAppender = new ListAppender<>();
         listAppender.start();
