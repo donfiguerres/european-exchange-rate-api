@@ -139,8 +139,10 @@ public class ExchangeRateServiceTest {
             "2023-05-26, 2023-05-30, USD, 1.0751",
             // includes days without data for the currency
             "2023-05-24, 2023-05-30, GBP, 0.86993",
+            // make sure it works if it's given a wide range
+            "1995-05-24, 2040-05-30, GBP, 0.86993",
             // no data for the currency
-            "2023-05-24, 2023-05-30, EEK, null"
+            "2023-05-24, 2023-05-30, EEK, null",
     })
     void testGetHighestRate(String startDateString, String endDateString,
             String currency,
@@ -149,12 +151,12 @@ public class ExchangeRateServiceTest {
                 .parse(startDateString, DateTimeFormatter.ISO_DATE);
         LocalDate endDate = LocalDate
                 .parse(endDateString, DateTimeFormatter.ISO_DATE);
-        CurrencyHighestRate result = exchangeRateService
+        Optional<CurrencyHighestRate> result = exchangeRateService
                 .getHighestRate(startDate, endDate, currency);
         if (expected == null) {
-            assertNull(result);
+            assertEquals(Optional.empty(), result);
         } else {
-            assertEquals(expected, result.getHighestRate());
+            assertEquals(expected, result.get().getHighestRate());
         }
     }
 
@@ -184,12 +186,12 @@ public class ExchangeRateServiceTest {
                 .parse(startDateString, DateTimeFormatter.ISO_DATE);
         LocalDate endDate = LocalDate
                 .parse(endDateString, DateTimeFormatter.ISO_DATE);
-        CurrencyAverageRate result = exchangeRateService
+        Optional<CurrencyAverageRate> result = exchangeRateService
                 .getAverageRate(startDate, endDate, currency);
         if (expected == null) {
-            assertNull(result);
+            assertEquals(Optional.empty(), result);
         } else {
-            assertEquals(expected, result.getAverageRate());
+            assertEquals(expected, result.get().getAverageRate());
         }
     }
 

@@ -70,11 +70,11 @@ public class ExchangeRateController {
             @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @Parameter(description = "Currency to get the highest rate for.") @RequestParam("currency") String currency) {
-        CurrencyHighestRate highestRate = service.getHighestRate(startDate, endDate, currency);
-        if (highestRate == null) {
+        Optional<CurrencyHighestRate> highestRate = service.getHighestRate(startDate, endDate, currency);
+        if (highestRate.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(highestRate);
+            return ResponseEntity.ok(highestRate.get());
         }
     }
 
@@ -86,11 +86,11 @@ public class ExchangeRateController {
             @Parameter(description = "Start date of the date range. Must be ISO formatted.") @RequestParam("start_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "End date of the date range. Must be ISO formatted.") @RequestParam("end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @Parameter(description = "Currency to get the average rate for.") @RequestParam("currency") String currency) {
-        CurrencyAverageRate averageRate = service.getAverageRate(startDate, endDate, currency);
-        if (averageRate == null) {
+        Optional<CurrencyAverageRate> averageRate = service.getAverageRate(startDate, endDate, currency);
+        if (averageRate.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(averageRate);
+            return ResponseEntity.ok(averageRate.get());
         }
     }
 

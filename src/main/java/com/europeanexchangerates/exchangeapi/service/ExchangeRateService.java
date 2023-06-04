@@ -86,7 +86,7 @@ public class ExchangeRateService {
      * @param currency  currency code to get the highest rate for
      * @return highest rate
      */
-    public CurrencyHighestRate getHighestRate(LocalDate startDate,
+    public Optional<CurrencyHighestRate> getHighestRate(LocalDate startDate,
             LocalDate endDate, String currency) {
         if (endDate.isBefore(startDate)) {
             throw new InvalidDateRangeException("End date cannot be before start date.");
@@ -96,10 +96,9 @@ public class ExchangeRateService {
                 .map(exchangeRate -> exchangeRate.getRates().get(currency))
                 .filter(Objects::nonNull)
                 .max(BigDecimal::compareTo);
-        BigDecimal highestRate = maxRate.orElse(null);
-        return highestRate == null
-                ? null
-                : new CurrencyHighestRate(currency, startDate, endDate, highestRate);
+
+        return maxRate.map(
+                highestRate -> new CurrencyHighestRate(currency, startDate, endDate, highestRate));
     }
 
     /**
@@ -110,7 +109,7 @@ public class ExchangeRateService {
      * @param currency  currency code to get the highest rate for
      * @return average rate
      */
-    public CurrencyAverageRate getAverageRate(LocalDate startDate,
+    public Optional<CurrencyAverageRate> getAverageRate(LocalDate startDate,
             LocalDate endDate, String currency) {
         if (endDate.isBefore(startDate)) {
             throw new InvalidDateRangeException("End date cannot be before start date.");
@@ -123,11 +122,9 @@ public class ExchangeRateService {
                 .mapToDouble(BigDecimal::doubleValue)
                 .average();
 
-        if (!average.isPresent())
-            return null;
-
-        BigDecimal averageRate = BigDecimal.valueOf(average.getAsDouble())
-                .setScale(2, RoundingMode.HALF_UP);
-        return new CurrencyAverageRate(currency, startDate, endDate, averageRate);
+        return average.isEmpty()
+                ? Optional.empty()
+                : Optional.of(new CurrencyAverageRate(currency, startDate, endDate,
+                        BigDecimal.valueOf(average.getAsDouble()).setScale(2, RoundingMode.HALF_UP)));
     }
 }

@@ -108,11 +108,11 @@ public class ExchangeRateControllerTest {
 
     @Test
     public void testGetHighestRateEndpoint() throws Exception {
-        CurrencyHighestRate highestRate = new CurrencyHighestRate(
+        Optional<CurrencyHighestRate> highestRate = Optional.of(new CurrencyHighestRate(
                 "USD",
                 LocalDate.of(2023, 5, 1),
                 LocalDate.of(2023, 5, 30),
-                BigDecimal.valueOf(1.0744));
+                BigDecimal.valueOf(1.0744)));
 
         when(service.getHighestRate(any(), any(), any())).thenReturn(highestRate);
 
@@ -129,7 +129,7 @@ public class ExchangeRateControllerTest {
     public void testGetHighestRateEndpoint_NoContent() throws Exception {
         LocalDate startDate = LocalDate.parse("2022-01-01");
         LocalDate endDate = LocalDate.parse("2022-01-31");
-        when(service.getHighestRate(startDate, endDate, "USD")).thenReturn(null);
+        when(service.getHighestRate(startDate, endDate, "USD")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/highest_rate")
                 .param("start_date", startDate.toString())
@@ -154,11 +154,11 @@ public class ExchangeRateControllerTest {
 
     @Test
     public void testGetAverageRateEndpoint() throws Exception {
-        CurrencyAverageRate averageRate = new CurrencyAverageRate(
+        Optional<CurrencyAverageRate> averageRate = Optional.of(new CurrencyAverageRate(
                 "USD",
                 LocalDate.of(2023, 5, 1),
                 LocalDate.of(2023, 5, 30),
-                BigDecimal.valueOf(1.081));
+                BigDecimal.valueOf(1.081)));
 
         when(service.getAverageRate(any(), any(), any())).thenReturn(averageRate);
 
@@ -175,7 +175,7 @@ public class ExchangeRateControllerTest {
     public void testGetAverageRateEndpoint_NoContent() throws Exception {
         LocalDate startDate = LocalDate.parse("2022-01-01");
         LocalDate endDate = LocalDate.parse("2022-01-31");
-        when(service.getAverageRate(startDate, endDate, "USD")).thenReturn(null);
+        when(service.getAverageRate(startDate, endDate, "USD")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/average_rate")
                 .param("start_date", startDate.toString())
