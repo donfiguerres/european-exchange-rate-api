@@ -1,4 +1,4 @@
-package com.europeanexchangerates.exchangeapi.util;
+package com.europeanexchangerates.exchangeapi.util.dataparser;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.europeanexchangerates.exchangeapi.dto.ExchangeRate;
-import com.europeanexchangerates.exchangeapi.util.dataparser.CsvDataParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
