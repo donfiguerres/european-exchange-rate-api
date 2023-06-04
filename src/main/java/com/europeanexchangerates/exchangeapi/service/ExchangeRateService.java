@@ -42,8 +42,8 @@ public class ExchangeRateService {
      * 
      * @return exchange rates
      */
-    public ExchangeRate getRatesForDate(LocalDate date) {
-        return exchangeRates.get(date);
+    public Optional<ExchangeRate> getRatesForDate(LocalDate date) {
+        return Optional.ofNullable(exchangeRates.get(date));
     }
 
     /**
@@ -58,16 +58,24 @@ public class ExchangeRateService {
      * 
      * @return converted amount
      */
-    public CurrencyConversion convertCurrency(LocalDate date, String source,
+    public Optional<CurrencyConversion> convertCurrency(LocalDate date, String source,
             String target, BigDecimal amount) {
-        BigDecimal sourceRate = exchangeRates.get(date).getRates().get(source);
-        BigDecimal targetRate = exchangeRates.get(date).getRates().get(target);
-        if (sourceRate == null || targetRate == null)
-            return null;
-        BigDecimal convertedValue = amount.multiply(targetRate)
-                .divide(sourceRate, 2, RoundingMode.HALF_UP);
+        Optional<ExchangeRate> exchangeRateForDate = Optional.ofNullable(exchangeRates.get(date));
+        return exchangeRateForDate.flatMap(exchangeRate -> {
+            Optional<BigDecimal> optionalSourceRate = Optional.ofNullable(exchangeRate.getRates().get(source));
+            Optional<BigDecimal> optionalTargetRate = Optional.ofNullable(exchangeRate.getRates().get(target));
 
-        return new CurrencyConversion(source, target, amount, date, convertedValue);
+            if (optionalSourceRate.isPresent() && optionalTargetRate.isPresent()) {
+                BigDecimal sourceRate = optionalSourceRate.get();
+                BigDecimal targetRate = optionalTargetRate.get();
+                BigDecimal convertedValue = amount.multiply(targetRate)
+                        .divide(sourceRate, 2, RoundingMode.HALF_UP);
+                return Optional.of(
+                        new CurrencyConversion(source, target, amount, date, convertedValue));
+            } else {
+                return Optional.empty();
+            }
+        });
     }
 
     /**

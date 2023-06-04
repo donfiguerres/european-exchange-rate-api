@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,14 +93,17 @@ public class ExchangeRateServiceTest {
             "2023-05-30, JPY, 150.01",
             "2023-05-30, BGN, 1.9558",
             "2023-05-30, GBP, 0.86365",
-            "2023-05-30, EEK, null"
+            "1995-05-30, GBP, null",
     })
     void testGetRatesForDate(String dateString, String currency,
             @ConvertWith(NullableConverter.class) BigDecimal expected) {
         LocalDate inputDate = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
-        Map<String, BigDecimal> rates = exchangeRateService
-                .getRatesForDate(inputDate).getRates();
-        assertEquals(expected, rates.get(currency));
+        Optional<ExchangeRate> result = exchangeRateService.getRatesForDate(inputDate);
+        if (expected == null) {
+            assertEquals(Optional.empty(), result);
+        } else {
+            assertEquals(expected, result.get().getRates().get(currency));
+        }
     }
 
     @ParameterizedTest
@@ -121,12 +124,12 @@ public class ExchangeRateServiceTest {
             @ConvertWith(NullableConverter.class) BigDecimal expected) {
         LocalDate inputDate = LocalDate
                 .parse(dateString, DateTimeFormatter.ISO_DATE);
-        CurrencyConversion result = exchangeRateService
+        Optional<CurrencyConversion> result = exchangeRateService
                 .convertCurrency(inputDate, sourceCurrency, targetCurrency, amount);
         if (expected == null) {
-            assertNull(result);
+            assertEquals(Optional.empty(), result);
         } else {
-            assertEquals(expected, result.getConvertedAmount());
+            assertEquals(expected, result.get().getConvertedAmount());
         }
     }
 

@@ -2,6 +2,7 @@ package com.europeanexchangerates.exchangeapi.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,11 +38,11 @@ public class ExchangeRateController {
     @ApiResponse(responseCode = "204", description = "No exchange rates found for the given date.")
     public ResponseEntity<ExchangeRate> getRates(
             @Parameter(description = "Date from which to get the exchange rates. Must be ISO formatted.") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        ExchangeRate exchangeRate = service.getRatesForDate(date);
-        if (exchangeRate == null) {
+        Optional<ExchangeRate> exchangeRate = service.getRatesForDate(date);
+        if (exchangeRate.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(exchangeRate);
+            return ResponseEntity.ok(exchangeRate.get());
         }
     }
 
@@ -53,11 +54,11 @@ public class ExchangeRateController {
             @Parameter(description = "Currency to convert from") @RequestParam("source") String source,
             @Parameter(description = "Currency to convert to") @RequestParam("target") String target,
             @Parameter(description = "Amount to convert") @RequestParam("amount") BigDecimal amount) {
-        CurrencyConversion conversion = service.convertCurrency(date, source, target, amount);
-        if (conversion == null) {
+        Optional<CurrencyConversion> conversion = service.convertCurrency(date, source, target, amount);
+        if (conversion.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(conversion);
+            return ResponseEntity.ok(conversion.get());
         }
     }
 

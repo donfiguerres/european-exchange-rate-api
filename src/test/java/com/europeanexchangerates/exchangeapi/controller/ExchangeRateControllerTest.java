@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class ExchangeRateControllerTest {
 
     @Test
     public void testGetRatesEndpoint() throws Exception {
-        ExchangeRate exchangeRate = new ExchangeRate(
+        Optional<ExchangeRate> exchangeRate = Optional.of(new ExchangeRate(
                 new HashMap<>() {
                     {
                         put("USD", BigDecimal.valueOf(1.0744));
@@ -47,7 +48,7 @@ public class ExchangeRateControllerTest {
                         put("BGN", BigDecimal.valueOf(1.9558));
                         put("GBP", BigDecimal.valueOf(0.86365));
                     }
-                });
+                }));
 
         when(service.getRatesForDate(any())).thenReturn(exchangeRate);
 
@@ -62,7 +63,7 @@ public class ExchangeRateControllerTest {
     public void testGetRatesEndpoint_NoContent() throws Exception {
         LocalDate date = LocalDate.parse("2022-01-01");
 
-        when(service.getRatesForDate(date)).thenReturn(null);
+        when(service.getRatesForDate(date)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/rates")
                 .param("date", "2022-01-01"))
@@ -72,12 +73,12 @@ public class ExchangeRateControllerTest {
 
     @Test
     public void testConvertCurrencyEndpoint() throws Exception {
-        CurrencyConversion conversion = new CurrencyConversion(
+        Optional<CurrencyConversion> conversion = Optional.of(new CurrencyConversion(
                 "USD",
                 "EUR",
                 BigDecimal.valueOf(100),
                 LocalDate.of(2023, 5, 30),
-                BigDecimal.valueOf(50));
+                BigDecimal.valueOf(50)));
 
         when(service.convertCurrency(any(), any(), any(), any())).thenReturn(conversion);
 
@@ -94,7 +95,7 @@ public class ExchangeRateControllerTest {
     @Test
     public void testConvertCurrencyEndpoint_NoContent() throws Exception {
         LocalDate date = LocalDate.parse("2022-01-01");
-        when(service.convertCurrency(date, "USD", "EUR", BigDecimal.valueOf(100))).thenReturn(null);
+        when(service.convertCurrency(date, "USD", "EUR", BigDecimal.valueOf(100))).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/convert")
                 .param("date", date.toString())
