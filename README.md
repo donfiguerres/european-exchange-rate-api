@@ -12,6 +12,10 @@ can do the following using this API
 - Get historical data statistics such as the highest and average rate over
     a certain period.
 
+## Dependencies
+
+This project requires Java 17.
+
 ## Building the Application
 
 A gradle wrapper is already included in this project. You perform the build by
