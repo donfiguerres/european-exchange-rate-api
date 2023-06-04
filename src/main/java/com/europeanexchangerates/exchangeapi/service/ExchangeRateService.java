@@ -22,6 +22,8 @@ import com.europeanexchangerates.exchangeapi.provider.UrlCsvZipExchangeRateProvi
 public class ExchangeRateService {
 
     // A TreeMap is used to store the exchange rates in chronological order.
+    // The data is currently only loaded into memory but can be easily
+    // replaced with a database or any other data store.
     private TreeMap<LocalDate, ExchangeRate> exchangeRates;
 
     public ExchangeRateService() throws Exception {
